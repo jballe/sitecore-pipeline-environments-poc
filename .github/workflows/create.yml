@@ -1,0 +1,46 @@
+name: Create environment
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+ create:
+   name: Create environment
+   runs-on: ubuntu-latest
+   environment:
+    name: test
+   steps:
+    - name: Setup dotnet
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+
+    - name: Restore tool
+      run: |
+        dotnet tool restore
+        dotnet sitecore --version
+
+    - name: Login to Sitecore XM Cloud
+      shell: pwsh
+      run: dotnet sitecore cloud login --client-id $env:CLI_USER --client-secret $env:CLI_PASS --non-interactive
+      env:
+        DOTNET_CLI_TELEMETRY_OPTOUT: 1
+        CLI_USER: ${{ secrets.XMCLOUD_CLIENTID }}
+        CLI_PASS: ${{ secrets.XMCLOUD_CLIENTSECRET }}
+
+    - name: Create environment
+      shell: pwsh
+      run: |
+        $commitRef = "${{ github.event.ref }}"
+        $projectId = $env:XMCLOUD_PROJECTID
+        $envName = "test-{0}" -f ($commitRef.Split("/") | Select-Object -Last 1)
+
+        $existingId = dotnet sitecore cloud environment list --project-id $projectId --json | ConvertFrom-Json | Where-Object { $_.name -eq $envName } | Select-Object -ExpandProperty id
+        if($Null -ne $existingId) {
+            dotnet sitecore cloud environment delete --environment-id $existingId --force
+        } else {
+            Write-Host "Environment '${envName}' has already been removed"
+        }
+      env:
+        XMCLOUD_PROJECTID: ${{ vars.XMCLOUD_PROJECTID }}
