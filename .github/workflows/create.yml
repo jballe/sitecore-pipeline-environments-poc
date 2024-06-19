@@ -3,6 +3,7 @@ name: Create environment
 on:
   workflow_dispatch:
   push:
+    branches-ignore: main
 
 jobs:
  create:
@@ -34,7 +35,7 @@ jobs:
     - name: Create environment
       shell: pwsh
       run: |
-        $commitRef = "${{ github.event.ref }}"
+        $commitRef = "${{ github.ref }}"
         $projectId = $env:XMCLOUD_PROJECTID
         $envName = "test-{0}" -f ($commitRef.Split("/") | Select-Object -Last 1)
 

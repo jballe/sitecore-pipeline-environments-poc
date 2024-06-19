@@ -33,7 +33,7 @@ jobs:
     - name: Remove environment
       shell: pwsh
       run: |
-        $commitRef = "${{ github.ref }}"
+        $commitRef = "${{ github.event.ref }}"
         $projectId = $env:XMCLOUD_PROJECTID
         $envName = "test-{0}" -f ($commitRef.Split("/") | Select-Object -Last 1)
 
