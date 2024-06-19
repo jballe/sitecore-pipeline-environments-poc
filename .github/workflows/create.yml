@@ -39,10 +39,10 @@ jobs:
         $envName = "test-{0}" -f ($commitRef.Split("/") | Select-Object -Last 1)
 
         $existingId = dotnet sitecore cloud environment list --project-id $projectId --json | ConvertFrom-Json | Where-Object { $_.name -eq $envName } | Select-Object -ExpandProperty id
-        if($Null -ne $existingId) {
-            dotnet sitecore cloud environment delete --environment-id $existingId --force
+        if($Null -eq $existingId) {
+            dotnet sitecore cloud environment create --project-id $projectId --name $envName
         } else {
-            Write-Host "Environment '${envName}' has already been removed"
+            Write-Host "Environment '${envName}' already exists"
         }
       env:
         XMCLOUD_PROJECTID: ${{ vars.XMCLOUD_PROJECTID }}
