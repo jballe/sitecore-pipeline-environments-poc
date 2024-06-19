@@ -39,7 +39,7 @@ jobs:
 
         $existingId = dotnet sitecore cloud environment list --project-id $projectId --json | ConvertFrom-Json | Where-Object { $_.name -eq $envName } | Select-Object -ExpandProperty id
         if($Null -ne $existingId) {
-            dotnet sitecore cloud environment delete --environment-id $existingId
+            dotnet sitecore cloud environment delete --environment-id $existingId --force
         } else {
             Write-Host "Environment '${envName}' has already been removed"
         }
