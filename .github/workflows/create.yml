@@ -3,6 +3,7 @@ name: Create environment
 on:
   workflow_dispatch:
   push:
+    branches-ignore: main
 
 jobs:
  create:
